@@ -1,7 +1,7 @@
 """`main` is the top level module for your Flask application."""
 
 # Import the Flask Framework
-from flask import Flask, render_template, url_for, Response, redirect, make_response, request, jsonify
+from flask import Flask, render_template, url_for, Response, redirect, make_response, request, jsonify, abort
 # import requests failed miserably!
 import logging
 import urllib2
@@ -46,8 +46,11 @@ def getNewGame():
 		g_GuessedWordState.append("_")
 	return jsonify(word_length=len(g_GuessedWord))
 	
-@app.route('/check_letter',methods=['POST'])
+@app.route('/check_letter',methods=['POST', 'GET'])
 def checkLetter():
+	if request.method == 'GET':
+		# return redirect('https://http.cat/400', 302)
+		abort(400)
 	global g_GuessedWord
 	global g_GuessedWordState
 	global g_CountDownToLost
@@ -56,7 +59,7 @@ def checkLetter():
 	zeGuessLetter = zeRequestJson.get('guess')
 	zeState = "ONGOING"
 	if zeGuessLetter is None or (not isinstance(zeGuessLetter,basestring)) or len(zeGuessLetter) > 1 or not zeGuessLetter.isalpha():
-		return redirect('https://sekhengproject.appspot.com/', 404)
+		abort(400)
 	zeCheckWhetherIsTrue = False
 	logging.info("zeGuessLetter: " + zeGuessLetter)
 	for num in range(0,len(g_GuessedWord)):
@@ -100,8 +103,12 @@ def resetScore():
 @app.errorhandler(404)
 def page_not_found(e):
     """Return a custom 404 error."""
-    return 'Sorry, Nothing at this URL. So dont try to hack: {}'.format(e), 404
+    # return 'Sorry, Nothing at this URL. So dont try to hack: {}'.format(e), 404
+	return redirect('https://http.cat/404')
 
+@app.errorhandler(400)
+def page_forbidden(e):
+	return redirect('https://http.cat/400')
 
 @app.errorhandler(500)
 def application_error(e):
