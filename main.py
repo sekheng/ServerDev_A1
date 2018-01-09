@@ -102,8 +102,6 @@ def resetScore():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    """Return a custom 404 error."""
-    # return 'Sorry, Nothing at this URL. So dont try to hack: {}'.format(e), 404
 	return redirect('https://http.cat/404')
 
 @app.errorhandler(400)
